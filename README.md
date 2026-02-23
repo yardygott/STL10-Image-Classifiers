@@ -23,7 +23,7 @@ Follow these steps in order to easily run the project from start to finish:
 
 ## 🛠️ Installation & Setup
 
-### 1. Fix Windows DLL Errors
+### 1. Fix Windows DLL Errors (for windows users only)
 To prevent `DLL load failed` on Windows:
 * Install **Microsoft Visual C++ Redistributable (x64)**: [Download here](https://aka.ms/vs/17/release/vc_redist.x64.exe)
 * **Restart your computer** after installation.
