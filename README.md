@@ -1,57 +1,80 @@
 # STL10-Image-Classifiers
 
-This project implements a complete deep learning pipeline for classifying images from the STL-10 dataset using various architectures (Logistic Regression, Fully Connected, CNNs, and MobileNet). The pipeline includes data augmentation, training with validation splitting, and a comprehensive evaluation suite.
+Small guide: two main steps to get the project running — install dependencies, then run training.
 
-## 🚀 Quick Start (How to Run)
+**Step 1 — Install dependencies (venv or system)**
 
-Follow these steps in order to easily run the project from start to finish:
+- Create and activate a virtual environment (recommended):
 
-1. **Get the Data**: Download the STL-10 dataset (~2.5GB) and prepare DataLoaders.
-
-2. **Visualize (Optional)**: Generate augmentation samples and class grids. Results are saved in `plots and outputs/`.
-
-3. **Configure Model**: Open `config.py` and set your desired `MODEL_TYPE`. Available options:
-   * `'logistic'`: Basic Logistic Regression.
-   * `'fc'`: Fully Connected (FC) Neural Network (MLP).
-   * `'cnn'`: Simple Convolutional Neural Network.
-   * `'mobilenet_fixed'`: MobileNetV2 as a fixed feature extractor (only the head is trained).
-   * `'mobilenet_learned'`: MobileNetV2 with full fine-tuning (all weights are updated).
-
-4. **Train**: Run the training script. The best model and curves will be saved in `plots and outputs/`.
-
-5. **Evaluate**: Test the model on unseen data. This generates a classification report and a confusion matrix in `plots and outputs/`.
-
-## 🛠️ Installation & Setup
-
-### 1. Fix Windows DLL Errors
-To prevent `DLL load failed` on Windows:
-* Install **Microsoft Visual C++ Redistributable (x64)**: [Download here](https://aka.ms/vs/17/release/vc_redist.x64.exe)
-* **Restart your computer** after installation.
-
-### 2. Virtual Environment & Dependencies
-**Choose the installation command based on your hardware:**
-
-**Option A: For standard laptops (CPU-only)**
 ```bash
 python -m venv venv
-.\venv\Scripts\activate
-pip install torch torchvision --index-url [https://download.pytorch.org/whl/cpu](https://download.pytorch.org/whl/cpu)
+source venv/bin/activate  # Linux / macOS
+# on Windows use: .\venv\Scripts\activate
+```
+
+- Install PyTorch appropriate for your hardware, then the project requirements.
+
+CPU-only example (Linux):
+
+```bash
+pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
 pip install -r requirements.txt
 ```
 
-**Option B: For machines with NVIDIA GPU (CUDA)**
+GPU (CUDA) example: follow the instructions at https://pytorch.org/ to pick the right wheel for your CUDA version, then:
+
 ```bash
-python -m venv venv
-.\venv\Scripts\activate
+# Example (replace with the command from pytorch.org):
+pip install torch torchvision --index-url https://download.pytorch.org/whl/cuXXX
 pip install -r requirements.txt
 ```
 
-## 📁 Project Structure
+Notes:
+- `requirements.txt` is provided in the repository and includes non-PyTorch Python dependencies.
+- You can also install system-wide if you prefer, but a virtual environment avoids conflicts.
 
-* `config.py`: Centralized configuration for hyperparameters and model selection.
-* `get_data.py`: Data loading logic and custom augmentation wrappers.
-* `train.py`: Main training loop; saves results to `plots and outputs/`.
-* `test.py`: Evaluation script; loads weights and generates metrics.
-* `plot_data_sample.py`: Tool for inspecting dataset and augmentations.
-* `model_*.py` & `mobilenet.py`: Architecture definitions for all classifiers.
-* `plots and outputs/`: (Auto-generated) Contains saved models (.pth) and performance plots (.png).
+**Step 2 — Run training (Train)**
+
+- Configure the model in `config.py` by setting `MODEL_TYPE` (options: `logistic`, `fc`, `cnn`, `mobilenet_fixed`, `mobilenet_learned`) and adjust `CURRENT_PARAMS` (learning rate, epochs, etc.).
+- Start training with:
+
+```bash
+python train.py
+```
+
+- Training behavior and outputs (what to expect):
+  - The script writes outputs into the `plots_and_outputs` folder (created automatically).
+  - Saved files include:
+    - `plots_and_outputs/best_model_<MODEL_TYPE>.pth` — the best model state_dict saved during training.
+    - `plots_and_outputs/training_curves_<MODEL_TYPE>.png` — combined train/validation loss and accuracy plot.
+
+**Testing / Evaluation**
+
+- After training, run evaluation with:
+
+```bash
+python test.py
+```
+
+- What `test.py` does and produces:
+  - Loads `best_model_<MODEL_TYPE>.pth` from `plots_and_outputs` (so ensure the file exists).
+  - Prints a classification report to the console.
+  - Saves `plots_and_outputs/confusion_matrix_<MODEL_TYPE>.png` and displays the confusion matrix.
+
+**Data location**
+
+- The project expects the STL-10 data under the `data/stl10_binary/` folder in the repository root. The repository includes helper files such as `class_names.txt` and `fold_indices.txt` used by the data loader.
+
+**Notes & tips**
+
+- The training scripts save model weights as `state_dict()` only. To reload, ensure `config.MODEL_TYPE` matches the model used when training.
+- If `test.py` reports a missing weights file, run `train.py` first or copy an existing `best_model_<MODEL_TYPE>.pth` into `plots_and_outputs`.
+- For reproducibility, `train.py` seeds RNGs based on `config.RANDOM_SEED`.
+
+## Quick file references
+
+- See configuration: [config.py](config.py)
+- Run training: [train.py](train.py)
+- Run evaluation: [test.py](test.py)
+- Data folder: [data/stl10_binary](data/stl10_binary)
+- Outputs folder (auto-created): [plots_and_outputs](plots_and_outputs)
